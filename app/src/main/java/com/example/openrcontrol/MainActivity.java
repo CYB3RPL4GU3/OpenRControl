@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity
     public static final String EXTRA_MESSAGE = "com.example.openrcontrol.MESSAGE";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //TODO: Falta importar las clases del servicio HID e inicializarlo
+        //TODO: Falta importar las clases del servicio HID e inicializarlo.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
