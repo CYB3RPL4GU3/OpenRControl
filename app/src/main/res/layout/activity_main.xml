@@ -60,4 +60,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/rightSteering" />
 
+    <TextView
+        android:id="@+id/txtThrottle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="16dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/throttle"
+        tools:text="0.0" />
+
 </android.support.constraint.ConstraintLayout>

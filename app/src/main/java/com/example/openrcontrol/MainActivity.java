@@ -117,16 +117,20 @@ public class MainActivity extends AppCompatActivity
 
         float steering = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_X, historyPos) * 100f;
 
-        float forward = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_Z, historyPos);
-        float backward = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_RZ, historyPos);
+        float forward = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_RZ, historyPos);
+        float backward = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_Z, historyPos);
 
-        float throttle = (forward - backward) * 100f;
+        float throttle = (forward - backward) * 50f;
+
+        TextView txtThrottle = findViewById(R.id.txtThrottle);
 
         ProgressBar pbRightSteer = findViewById(R.id.rightSteering);
         ProgressBar pbLeftSteer = findViewById(R.id.leftSteering);
 
         TextView txtDirection = findViewById(R.id.txtDirection);
         ProgressBar pbThrottle = findViewById(R.id.throttle);
+
+        txtThrottle.setText(String.valueOf(throttle));
 
         if (steering >= 0f)
         {
