@@ -7,28 +7,57 @@
     tools:context=".MainActivity">
 
     <ProgressBar
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="130dp"
-        android:layout_height="30dp"
+        android:id="@+id/throttle"
+        style="?android:progressBarStyleHorizontal"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:layout_marginBottom="16dp"
-        android:max="100"
-        android:progress="0"
+        android:max="360"
+        android:progress="5"
+        android:progressDrawable="@drawable/circle"
         android:scrollbarSize="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/throttleBck"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ProgressBar
-        android:id="@+id/throttleBck"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="130dp"
-        android:layout_height="30dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginBottom="16dp"
-        android:scrollbarSize="8dp"
+        android:transformPivotX="0dp"
+        android:transformPivotY="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/txtDirection"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/neutral"
+        android:textSize="56sp"
+        app:layout_constraintBottom_toBottomOf="@+id/throttle"
+        app:layout_constraintEnd_toEndOf="@+id/throttle"
+        app:layout_constraintStart_toStartOf="@+id/throttle"
+        app:layout_constraintTop_toTopOf="@+id/throttle" />
+
+    <ProgressBar
+        android:id="@+id/rightSteering"
+        style="?android:progressBarStyleHorizontal"
+        android:layout_width="100dp"
+        android:layout_height="10dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="32dp"
+        android:max="105"
+        android:progress="5"
+        android:progressDrawable="@drawable/right_line"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <ProgressBar
+        android:id="@+id/leftSteering"
+        style="?android:progressBarStyleHorizontal"
+        android:layout_width="100dp"
+        android:layout_height="10dp"
+        android:layout_marginBottom="32dp"
+        android:max="105"
+        android:progress="5"
+        android:progressDrawable="@drawable/left_line"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/rightSteering" />
 
 </android.support.constraint.ConstraintLayout>

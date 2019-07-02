@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="rainlightFunction">R</string>
+    <string name="rainlightColor">C</string>
+    <string name="throttle">T</string>
+    <string name="steering">S</string>
+    <string name="PIDInfo">PID</string>
+    <string name="heartbeatRequest">PING</string>
+    <string name="heartbeatResponse">PONG</string>
+    <string name="editPIDParam">W</string>
+
+    <!--Editable PID Parameters-->
+    <string name="proportionalGain">P</string>
+    <string name="integralGain">I</string>
+    <string name="derivativeGain">D</string>
+    <string name="cutoffFreq">F</string>
+</resources>
