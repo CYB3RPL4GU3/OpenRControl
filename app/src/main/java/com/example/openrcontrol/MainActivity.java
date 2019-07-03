@@ -1,25 +1,25 @@
 package com.example.openrcontrol;
 
-import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.example.openrcontrol.core.OpenRControl;
+import com.example.openrcontrol.core.enums.RainlightState;
+
 public class MainActivity extends AppCompatActivity
 {
-    private boolean light = false;
-    private boolean hazard = false;
+    private OpenRControl control;
 
     public static final String EXTRA_MESSAGE = "com.example.openrcontrol.MESSAGE";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //TODO: Falta importar las clases del servicio HID e inicializarlo.
+        control = new OpenRControl();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
     }
@@ -44,13 +44,25 @@ public class MainActivity extends AppCompatActivity
             if (event.getRepeatCount() == 0 && action == KeyEvent.ACTION_DOWN) {
                 switch (keyCode) {
                     case KeyEvent.KEYCODE_BUTTON_Y:
-                        hazard = !hazard;
-                        light = false;
+                        if (control.isLightHazardModeOn())
+                        {
+                            control.setRainlightFunction(RainlightState.OFF);
+                        }
+                        else
+                        {
+                            control.setRainlightFunction(RainlightState.HAZARD);
+                        }
                         handled = true;
                         break;
                     case KeyEvent.KEYCODE_BUTTON_X:
-                        hazard = false;
-                        light = !light;
+                        if (control.isLightOn())
+                        {
+                            control.setRainlightFunction(RainlightState.OFF);
+                        }
+                        else
+                        {
+                            control.setRainlightFunction(RainlightState.ON);
+                        }
                         handled = true;
                         break;
                     default:
