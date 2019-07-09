@@ -150,7 +150,7 @@ public abstract class AbstractUSBHIDService extends Service {
 		if (device != null && endPointWrite != null && mUsbManager.hasPermission(device) && !data.isEmpty()) {
 			// mLog(connection +"\n"+ device +"\n"+ request +"\n"+
 			// packetSize);
-			byte[] out = data.getBytes(Charset.defaultCharset().forName("US-ASCII"));// UTF-16LE
+			byte[] out = data.getBytes(Charset.forName("US-ASCII"));// UTF-16LE
 											// Charset.forName("UTF-16")
 			onUSBDataSending(data);
 			if (sendAsString) {

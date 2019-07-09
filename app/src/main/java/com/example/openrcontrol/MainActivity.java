@@ -1,5 +1,7 @@
 package com.example.openrcontrol;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.InputDevice;
@@ -10,10 +12,16 @@ import android.widget.TextView;
 
 import com.example.openrcontrol.core.OpenRControl;
 import com.example.openrcontrol.core.enums.RainlightState;
+import com.example.openrcontrol.core.services.USBHIDService;
+
+import de.greenrobot.event.EventBus;
 
 public class MainActivity extends AppCompatActivity
 {
     private OpenRControl control;
+    private Intent usbService;
+    protected EventBus eventBus;
+    private SharedPreferences sharedPreferences;
 
     public static final String EXTRA_MESSAGE = "com.example.openrcontrol.MESSAGE";
     @Override
@@ -22,6 +30,14 @@ public class MainActivity extends AppCompatActivity
         control = new OpenRControl();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+        usbService = new Intent(this, USBHIDService.class);
+        startService(usbService);
     }
 
 //    public void sendMessage(View view)
