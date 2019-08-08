@@ -10,11 +10,11 @@ import android.view.MotionEvent;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.openrcontrol.core.OpenRControl;
 import com.example.openrcontrol.core.enums.RainlightState;
-import com.example.openrcontrol.core.services.USBHIDService;
+import com.example.openrcontrol.core.services.OpenRControl;
 
 import de.greenrobot.event.EventBus;
+import de.greenrobot.event.EventBusException;
 
 public class MainActivity extends AppCompatActivity
 {
@@ -30,24 +30,20 @@ public class MainActivity extends AppCompatActivity
         control = new OpenRControl();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+            eventBus = EventBus.builder().logNoSubscriberMessages(false).sendNoSubscriberEvent(false).installDefaultEventBus();
+        } catch (EventBusException e) {
+            eventBus = EventBus.getDefault();
+        }
     }
 
     @Override
     protected void onStart()
     {
         super.onStart();
-        usbService = new Intent(this, USBHIDService.class);
+        usbService = new Intent(this, OpenRControl.class);
         startService(usbService);
     }
-
-//    public void sendMessage(View view)
-//    {
-//        Intent intent = new Intent(this, DisplayMessageActivity.class);
-//        EditText editText = findViewById(R.id.editText);
-//        String message = editText.getText().toString();
-//        intent.putExtra(EXTRA_MESSAGE, message);
-//        startActivity(intent);
-//    }
 
     @Override
     public boolean dispatchKeyEvent(KeyEvent event)

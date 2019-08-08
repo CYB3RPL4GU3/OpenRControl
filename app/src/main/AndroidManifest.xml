@@ -24,7 +24,7 @@
         </activity>
 
         <service
-            android:name=".core.services.USBHIDService"
+            android:name=".core.services.OpenRControl"
             android:label="@string/app_name" />
     </application>
 

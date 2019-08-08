@@ -165,7 +165,7 @@ public abstract class AbstractUSBHIDService extends Service {
 				}
 			}
 			int status = connection.bulkTransfer(endPointWrite, out, out.length, 250);
-			onUSBDataSended(status, out);
+			onUSBDataSent(status, out);
 		}
 	}
 
@@ -251,7 +251,7 @@ public abstract class AbstractUSBHIDService extends Service {
 	public void onUSBDataSending(String data) {
 	}
 
-	public void onUSBDataSended(int status, byte[] out) {
+	public void onUSBDataSent(int status, byte[] out) {
 	}
 
 	public void onSendingError(Exception e) {
