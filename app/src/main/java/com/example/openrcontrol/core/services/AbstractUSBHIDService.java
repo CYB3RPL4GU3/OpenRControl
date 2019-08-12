@@ -49,7 +49,7 @@ public abstract class AbstractUSBHIDService extends Service {
 	private PendingIntent mPermissionIntent;
 
 	private int packetSize;
-	private boolean sendedDataType;
+	private boolean sentDataType;
 
 	protected EventBus eventBus = EventBus.getDefault();
 
@@ -75,7 +75,7 @@ public abstract class AbstractUSBHIDService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		String action = intent.getAction();
 		if (Consts.ACTION_USB_DATA_TYPE.equals(action)) {
-			sendedDataType = intent.getBooleanExtra(Consts.ACTION_USB_DATA_TYPE, false);
+			sentDataType = intent.getBooleanExtra(Consts.ACTION_USB_DATA_TYPE, false);
 		}
 		onCommand(intent, action, flags, startId);
 		return START_REDELIVER_INTENT;
@@ -127,7 +127,7 @@ public abstract class AbstractUSBHIDService extends Service {
 	}
 
 	public void onEventMainThread(USBDataSendEvent event){
-		sendData(event.getData(), sendedDataType);
+		sendData(event.getData(), sentDataType);
 	}
 
 	public void onEvent(SelectDeviceEvent event) {

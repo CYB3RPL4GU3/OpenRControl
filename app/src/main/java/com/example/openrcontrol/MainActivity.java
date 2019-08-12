@@ -1,5 +1,7 @@
 package com.example.openrcontrol;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
@@ -10,7 +12,14 @@ import android.view.MotionEvent;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.example.openrcontrol.core.enums.RainlightState;
+import com.example.openrcontrol.core.Consts;
+import com.example.openrcontrol.core.events.CommandSentEvent;
+import com.example.openrcontrol.core.events.DeviceAttachedEvent;
+import com.example.openrcontrol.core.events.DeviceDetachedEvent;
+import com.example.openrcontrol.core.events.LogMessageEvent;
+import com.example.openrcontrol.core.events.SelectDeviceEvent;
+import com.example.openrcontrol.core.events.ShowDevicesListEvent;
+import com.example.openrcontrol.core.events.USBDataReceiveEvent;
 import com.example.openrcontrol.core.services.OpenRControl;
 
 import de.greenrobot.event.EventBus;
@@ -18,8 +27,7 @@ import de.greenrobot.event.EventBusException;
 
 public class MainActivity extends AppCompatActivity
 {
-    private OpenRControl control;
-    private Intent usbService;
+    private Intent control;
     protected EventBus eventBus;
     private SharedPreferences sharedPreferences;
 
@@ -27,7 +35,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //TODO: Falta importar las clases del servicio HID e inicializarlo.
-        control = new OpenRControl();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         try {
@@ -41,8 +48,8 @@ public class MainActivity extends AppCompatActivity
     protected void onStart()
     {
         super.onStart();
-        usbService = new Intent(this, OpenRControl.class);
-        startService(usbService);
+        control = new Intent(this, OpenRControl.class);
+        startService(control);
     }
 
     @Override
@@ -56,25 +63,15 @@ public class MainActivity extends AppCompatActivity
             if (event.getRepeatCount() == 0 && action == KeyEvent.ACTION_DOWN) {
                 switch (keyCode) {
                     case KeyEvent.KEYCODE_BUTTON_Y:
-                        if (control.isLightHazardModeOn())
-                        {
-                            control.setRainlightFunction(RainlightState.OFF);
-                        }
-                        else
-                        {
-                            control.setRainlightFunction(RainlightState.HAZARD);
-                        }
+                        eventBus.post(new CommandSentEvent(Consts.COMMAND_TOGGLE_HAZARD));
                         handled = true;
                         break;
                     case KeyEvent.KEYCODE_BUTTON_X:
-                        if (control.isLightOn())
-                        {
-                            control.setRainlightFunction(RainlightState.OFF);
-                        }
-                        else
-                        {
-                            control.setRainlightFunction(RainlightState.ON);
-                        }
+                        eventBus.post(new CommandSentEvent(Consts.COMMAND_TOGGLE_RAINLIGHT));
+                        handled = true;
+                        break;
+                    case KeyEvent.KEYCODE_BUTTON_A:
+                        eventBus.post(new CommandSentEvent(Consts.COMMAND_NEXT_RAINLIGHT_COLOR));
                         handled = true;
                         break;
                     default:
@@ -186,5 +183,55 @@ public class MainActivity extends AppCompatActivity
         {
             txtDirection.setText(R.string.neutral);
         }
+    }
+
+    private void mLog(String log, boolean newLine) {
+//        if (newLine) {
+//            edtlogText.append(Consts.NEW_LINE);
+//        }
+//        edtlogText.append(log);
+//        if(edtlogText.getLineCount()>200) {
+//            edtlogText.setText("cleared");
+//        }
+    }
+
+    void showListOfDevices(CharSequence devicesName[]) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        if (devicesName.length == 0) {
+            builder.setTitle(R.string.MESSAGE_CONNECT_YOUR_USB_HID_DEVICE);
+        } else {
+            builder.setTitle(R.string.MESSAGE_SELECT_YOUR_USB_HID_DEVICE);
+        }
+
+        builder.setItems(devicesName, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                eventBus.post(new SelectDeviceEvent(which));
+            }
+        });
+        builder.setCancelable(true);
+        builder.show();
+    }
+
+
+    public void onEvent(USBDataReceiveEvent event) {
+        mLog(event.getData() + " \nReceived " + event.getBytesCount() + " bytes", true);
+    }
+
+    public void onEvent(LogMessageEvent event) {
+        mLog(event.getData(), true);
+    }
+
+    public void onEvent(ShowDevicesListEvent event) {
+        showListOfDevices(event.getCharSequenceArray());
+    }
+
+    public void onEvent(DeviceAttachedEvent event) {
+
+    }
+
+    public void onEvent(DeviceDetachedEvent event) {
+
     }
 }

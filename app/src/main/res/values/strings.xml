@@ -3,4 +3,7 @@
     <string name="forward">D</string>
     <string name="neutral">N</string>
     <string name="reverse">R</string>
+
+    <string name="MESSAGE_CONNECT_YOUR_USB_HID_DEVICE">Conecta el transmisor</string>
+    <string name="MESSAGE_SELECT_YOUR_USB_HID_DEVICE">Selecciona el transmisor a utilizar</string>
 </resources>

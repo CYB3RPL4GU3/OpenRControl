@@ -42,4 +42,16 @@ public enum RainlightColor
         }
         return max;
     }
+
+    public static RainlightColor getColorByCode(int code)
+    {
+        for (RainlightColor color: RainlightColor.values())
+        {
+            if (color.getColorCode() == code)
+            {
+                return color;
+            }
+        }
+        return null;
+    }
 }
