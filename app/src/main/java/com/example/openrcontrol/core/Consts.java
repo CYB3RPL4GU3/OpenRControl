@@ -14,6 +14,7 @@ public abstract class Consts {
 	public static final String DELIMITER_SPACE = "space";
 	public static final String NEW_LINE = "\n";
 	public static final String SPACE = " ";
+	public static final String ASTERISK = "*";
 
 	public static final String ACTION_USB_SHOW_DEVICES_LIST = "ACTION_USB_SHOW_DEVICES_LIST";
 	public static final String ACTION_USB_DATA_TYPE = "ACTION_USB_DATA_TYPE";
@@ -23,6 +24,9 @@ public abstract class Consts {
 	public static final String COMMAND_TOGGLE_RAINLIGHT = "TOGGLE_RAINLIGHT";
 	public static final String COMMAND_TOGGLE_HAZARD = "TOGGLE_RAINLIGHT_HAZARD";
 	public static final String COMMAND_NEXT_RAINLIGHT_COLOR = "SET_NEXT_RAINLIGHT_COLOR";
+	public static final String COMMAND_SET_THROTTLE = "SET_THROTTLE";
+	public static final String COMMAND_SET_STEERING = "SET_STEERING";
+
 
 	private Consts() {
 	}

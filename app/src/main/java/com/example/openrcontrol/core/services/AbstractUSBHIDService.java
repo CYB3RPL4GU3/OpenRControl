@@ -130,6 +130,10 @@ public abstract class AbstractUSBHIDService extends Service {
 		sendData(event.getData(), sentDataType);
 	}
 
+	public void onEvent(USBDataSendEvent event){
+		sendData(event.getData(), sentDataType);
+	}
+
 	public void onEvent(SelectDeviceEvent event) {
 		device = (UsbDevice) mUsbManager.getDeviceList().values().toArray()[event.getDevice()];
 		mUsbManager.requestPermission(device, mPermissionIntent);

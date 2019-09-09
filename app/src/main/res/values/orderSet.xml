@@ -10,6 +10,7 @@
     <string name="heartbeatResponse">PONG</string>
     <string name="editPIDParam">W</string>
     <string name="acknowledge">OK</string>
+    <string name="terminator">*</string>
 
     <!--Editable PID Parameters-->
     <string name="proportionalGain">P</string>

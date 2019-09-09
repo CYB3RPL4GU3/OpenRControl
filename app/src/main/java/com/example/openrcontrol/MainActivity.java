@@ -1,10 +1,10 @@
 package com.example.openrcontrol;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -17,6 +17,7 @@ import com.example.openrcontrol.core.events.CommandSentEvent;
 import com.example.openrcontrol.core.events.DeviceAttachedEvent;
 import com.example.openrcontrol.core.events.DeviceDetachedEvent;
 import com.example.openrcontrol.core.events.LogMessageEvent;
+import com.example.openrcontrol.core.events.QuantityCommandSentEvent;
 import com.example.openrcontrol.core.events.SelectDeviceEvent;
 import com.example.openrcontrol.core.events.ShowDevicesListEvent;
 import com.example.openrcontrol.core.events.USBDataReceiveEvent;
@@ -25,16 +26,16 @@ import com.example.openrcontrol.core.services.OpenRControl;
 import de.greenrobot.event.EventBus;
 import de.greenrobot.event.EventBusException;
 
-public class MainActivity extends AppCompatActivity
+public class MainActivity extends Activity
 {
     private Intent control;
     protected EventBus eventBus;
+    //TODO: Falta incluir la actividad de preferencias
     private SharedPreferences sharedPreferences;
 
     public static final String EXTRA_MESSAGE = "com.example.openrcontrol.MESSAGE";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        //TODO: Falta importar las clases del servicio HID e inicializarlo.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         try {
@@ -55,7 +56,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean dispatchKeyEvent(KeyEvent event)
     {
-        //TODO: Falta configurar los comandos que van por el transmisor.
         boolean handled = false;
         if ((event.getSource() & InputDevice.SOURCE_GAMEPAD) == InputDevice.SOURCE_GAMEPAD) {
             int keyCode = event.getKeyCode();
@@ -89,7 +89,6 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean dispatchGenericMotionEvent(MotionEvent event)
     {
-        //TODO: Falta configurar los comandos que van por el transmisor.
         if ((event.getSource() & InputDevice.SOURCE_JOYSTICK) == InputDevice.SOURCE_JOYSTICK && event.getAction() == MotionEvent.ACTION_MOVE)
         {
             // Process all historical movement samples in the batch
@@ -132,8 +131,9 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    private void processJoystickInput(MotionEvent event, int historyPos) {
-
+    private void processJoystickInput(MotionEvent event, int historyPos)
+    {
+        //FIXME: Hay un error que aún no se puede controlar, que sucede cuando el control se desconecta.
         InputDevice inputDevice = event.getDevice();
 
         float steering = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_X, historyPos) * 100f;
@@ -142,6 +142,9 @@ public class MainActivity extends AppCompatActivity
         float backward = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_Z, historyPos);
 
         float throttle = (forward - backward) * 50f;
+
+        eventBus.post(new QuantityCommandSentEvent(Consts.COMMAND_SET_THROTTLE, throttle));
+        eventBus.post(new QuantityCommandSentEvent(Consts.COMMAND_SET_STEERING, steering));
 
         TextView txtThrottle = findViewById(R.id.txtThrottle);
 
@@ -186,6 +189,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void mLog(String log, boolean newLine) {
+        //TODO: falta implementar el guardado del log de comunicaciones en un archivo plano, y la configuración para activarlo en la actividad de preferencias
 //        if (newLine) {
 //            edtlogText.append(Consts.NEW_LINE);
 //        }

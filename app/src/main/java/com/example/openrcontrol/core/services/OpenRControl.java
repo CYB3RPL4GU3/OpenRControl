@@ -2,20 +2,18 @@ package com.example.openrcontrol.core.services;
 
 import com.example.openrcontrol.core.enums.RainlightColor;
 import com.example.openrcontrol.core.enums.RainlightState;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
-import android.support.v4.app.NotificationCompat;
-
-import com.example.openrcontrol.MainActivity;
 import com.example.openrcontrol.R;
 import com.example.openrcontrol.core.Consts;
 import com.example.openrcontrol.core.USBUtils;
 import com.example.openrcontrol.core.events.CommandSentEvent;
 import com.example.openrcontrol.core.events.LogMessageEvent;
+import com.example.openrcontrol.core.events.QuantityCommandSentEvent;
 import com.example.openrcontrol.core.events.USBDataReceiveEvent;
 import com.example.openrcontrol.core.events.USBDataSendEvent;
+
+import java.util.Locale;
 
 public class OpenRControl extends AbstractUSBHIDService
 {
@@ -87,17 +85,34 @@ public class OpenRControl extends AbstractUSBHIDService
             case Consts.COMMAND_TOGGLE_RAINLIGHT:
             {
                 toggleRainlight();
-                eventBus.post(new USBDataSendEvent(getString(R.string.rainlightFunction) + function.getStateCode()));
+                eventBus.post(new USBDataSendEvent(getString(R.string.rainlightFunction) + function.getStateCode() + getString(R.string.terminator)));
             }
             case Consts.COMMAND_TOGGLE_HAZARD:
             {
                 toggleHazard();
-                eventBus.post(new USBDataSendEvent(getString(R.string.rainlightFunction) + function.getStateCode()));
+                eventBus.post(new USBDataSendEvent(getString(R.string.rainlightFunction) + function.getStateCode() + getString(R.string.terminator)));
             }
             case Consts.COMMAND_NEXT_RAINLIGHT_COLOR:
             {
                 setRainlightColor();
-                eventBus.post(new USBDataSendEvent(getString(R.string.rainlightColor) + color.getColorCode()));
+                eventBus.post(new USBDataSendEvent(getString(R.string.rainlightColor) + color.getColorCode() + getString(R.string.terminator)));
+            }
+        }
+    }
+
+    public void onEvent(QuantityCommandSentEvent event)
+    {
+        switch (event.getCommand())
+        {
+            case Consts.COMMAND_SET_THROTTLE:
+            {
+                eventBus.post(new USBDataSendEvent(getString(R.string.throttle) + String.format(Locale.US, "%.2f", event.getQuantity()) + getString(R.string.terminator)));
+                break;
+            }
+            case Consts.COMMAND_SET_STEERING:
+            {
+                eventBus.post(new USBDataSendEvent(getString(R.string.steering) + String.format(Locale.US, "%.2f", event.getQuantity()) + getString(R.string.terminator)));
+                break;
             }
         }
     }
@@ -130,6 +145,15 @@ public class OpenRControl extends AbstractUSBHIDService
             }
         }
         eventBus.post(new USBDataReceiveEvent(stringBuilder.toString(), i));
+        if (stringBuilder.toString().equals(getString(R.string.heartbeatRequest)))
+        {
+            onHeartBeatRequest();
+        }
+    }
+
+    private void onHeartBeatRequest()
+    {
+        eventBus.post(new USBDataSendEvent(getString(R.string.heartbeatResponse) + getString(R.string.terminator)));
     }
 
     private void mLog(String log) {
@@ -149,17 +173,14 @@ public class OpenRControl extends AbstractUSBHIDService
         switch (function)
         {
             case ON:
-                //TODO: Enviar "R2" por el transmisor.
                 light = true;
                 hazard = false;
                 break;
             case HAZARD:
-                //TODO: Enviar "R3" por el transmisor.
                 light = false;
                 hazard = true;
                 break;
             case OFF:
-                //TODO: Enviar "R1" por el transmisor.
                 light = false;
                 hazard = false;
                 break;
@@ -169,7 +190,6 @@ public class OpenRControl extends AbstractUSBHIDService
 
     public void setRainlightColor()
     {
-        //TODO: Enviar "C" mas el código de color al transmisor.
         int actualColor = this.color.getColorCode();
         int lowestColor =  RainlightColor.getLowestColorCode();
         int highestColor =  RainlightColor.getHighestColorCode();
@@ -186,18 +206,6 @@ public class OpenRControl extends AbstractUSBHIDService
 
     public void toggleRainlight()
     {
-        if (this.isLightHazardModeOn())
-        {
-            this.setRainlightFunction(RainlightState.OFF);
-        }
-        else
-        {
-            this.setRainlightFunction(RainlightState.HAZARD);
-        }
-    }
-
-    public void toggleHazard()
-    {
         if (this.isLightOn())
         {
             this.setRainlightFunction(RainlightState.OFF);
@@ -205,6 +213,18 @@ public class OpenRControl extends AbstractUSBHIDService
         else
         {
             this.setRainlightFunction(RainlightState.ON);
+        }
+    }
+
+    public void toggleHazard()
+    {
+        if (this.isLightHazardModeOn())
+        {
+            this.setRainlightFunction(RainlightState.OFF);
+        }
+        else
+        {
+            this.setRainlightFunction(RainlightState.HAZARD);
         }
     }
 }
