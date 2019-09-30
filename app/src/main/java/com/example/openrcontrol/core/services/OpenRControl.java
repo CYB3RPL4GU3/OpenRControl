@@ -8,6 +8,7 @@ import com.example.openrcontrol.R;
 import com.example.openrcontrol.core.Consts;
 import com.example.openrcontrol.core.USBUtils;
 import com.example.openrcontrol.core.events.CommandSentEvent;
+import com.example.openrcontrol.core.events.HeartbeatEvent;
 import com.example.openrcontrol.core.events.LogMessageEvent;
 import com.example.openrcontrol.core.events.QuantityCommandSentEvent;
 import com.example.openrcontrol.core.events.USBDataReceiveEvent;
@@ -17,12 +18,13 @@ import java.util.Locale;
 
 public class OpenRControl extends AbstractUSBHIDService
 {
-    private String delimiter;
-    private String receiveDataFormat;
+    private String delimiter = Consts.NEW_LINE;
+    private String receiveDataFormat = Consts.TEXT;
     private boolean light = false;
     private boolean hazard = false;
     private RainlightColor color;
     private RainlightState function;
+    private boolean ignoreHeartbeat = false;
 
     @Override
     public void onCreate() {
@@ -76,6 +78,11 @@ public class OpenRControl extends AbstractUSBHIDService
         for (int i = 0; i < out.length && out[i] != 0; i++) {
             mLog(Consts.SPACE + USBUtils.toInt(out[i]));
         }
+    }
+
+    public void onEvent(HeartbeatEvent event)
+    {
+        ignoreHeartbeat = event.isIgnored();
     }
 
     public void onEvent(CommandSentEvent event)
@@ -153,7 +160,10 @@ public class OpenRControl extends AbstractUSBHIDService
 
     private void onHeartBeatRequest()
     {
-        eventBus.post(new USBDataSendEvent(getString(R.string.heartbeatResponse) + getString(R.string.terminator)));
+        if (!ignoreHeartbeat)
+        {
+            eventBus.post(new USBDataSendEvent(getString(R.string.heartbeatResponse) + getString(R.string.terminator)));
+        }
     }
 
     private void mLog(String log) {

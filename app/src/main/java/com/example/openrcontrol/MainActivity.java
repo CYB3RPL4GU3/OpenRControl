@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -16,6 +17,7 @@ import com.example.openrcontrol.core.Consts;
 import com.example.openrcontrol.core.events.CommandSentEvent;
 import com.example.openrcontrol.core.events.DeviceAttachedEvent;
 import com.example.openrcontrol.core.events.DeviceDetachedEvent;
+import com.example.openrcontrol.core.events.HeartbeatEvent;
 import com.example.openrcontrol.core.events.LogMessageEvent;
 import com.example.openrcontrol.core.events.QuantityCommandSentEvent;
 import com.example.openrcontrol.core.events.SelectDeviceEvent;
@@ -32,8 +34,9 @@ public class MainActivity extends Activity
     protected EventBus eventBus;
     //TODO: Falta incluir la actividad de preferencias
     private SharedPreferences sharedPreferences;
+    private float steeringCommand;
+    private float throttleCommand;
 
-    public static final String EXTRA_MESSAGE = "com.example.openrcontrol.MESSAGE";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +46,9 @@ public class MainActivity extends Activity
         } catch (EventBusException e) {
             eventBus = EventBus.getDefault();
         }
+        throttleCommand = 0f;
+        steeringCommand = 0f;
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
     }
 
     @Override
@@ -51,6 +57,22 @@ public class MainActivity extends Activity
         super.onStart();
         control = new Intent(this, OpenRControl.class);
         startService(control);
+    }
+
+    @Override
+    protected void onPause()
+    {
+        throttleCommand = 0f;
+        eventBus.post(new QuantityCommandSentEvent(Consts.COMMAND_SET_THROTTLE, throttleCommand));
+        eventBus.post(new HeartbeatEvent(true));
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume()
+    {
+        eventBus.post(new HeartbeatEvent(false));
+        super.onResume();
     }
 
     @Override
@@ -130,7 +152,6 @@ public class MainActivity extends Activity
         return 0;
     }
 
-
     private void processJoystickInput(MotionEvent event, int historyPos)
     {
         //FIXME: Hay un error que aún no se puede controlar, que sucede cuando el control se desconecta.
@@ -143,48 +164,57 @@ public class MainActivity extends Activity
 
         float throttle = (forward - backward) * 50f;
 
-        eventBus.post(new QuantityCommandSentEvent(Consts.COMMAND_SET_THROTTLE, throttle));
-        eventBus.post(new QuantityCommandSentEvent(Consts.COMMAND_SET_STEERING, steering));
-
-        TextView txtThrottle = findViewById(R.id.txtThrottle);
-
-        ProgressBar pbRightSteer = findViewById(R.id.rightSteering);
-        ProgressBar pbLeftSteer = findViewById(R.id.leftSteering);
-
-        TextView txtDirection = findViewById(R.id.txtDirection);
-        ProgressBar pbThrottle = findViewById(R.id.throttle);
-
-        txtThrottle.setText(String.valueOf(throttle));
-
-        if (steering >= 0f)
+        if (throttle != throttleCommand)
         {
-            pbRightSteer.setProgress((int)Math.floor(steering) + 5);
-            pbLeftSteer.setProgress(0);
+            throttleCommand = throttle;
+
+            eventBus.post(new QuantityCommandSentEvent(Consts.COMMAND_SET_THROTTLE, throttleCommand));
+
+            TextView txtThrottle = findViewById(R.id.txtThrottle);
+
+            TextView txtDirection = findViewById(R.id.txtDirection);
+            ProgressBar pbThrottle = findViewById(R.id.throttle);
+
+            txtThrottle.setText(String.valueOf(throttleCommand));
+
+            pbThrottle.setProgress((int) ((Math.abs(throttleCommand * 2.7f) + 5)));
+
+            if (throttleCommand > 0f)
+            {
+                txtDirection.setText(R.string.forward);
+            }
+            else if (throttleCommand < 0f)
+            {
+                txtDirection.setText(R.string.reverse);
+            }
+            else
+            {
+                txtDirection.setText(R.string.neutral);
+            }
         }
-        else if (steering <= 0f)
-        {
-            pbRightSteer.setProgress(0);
-            pbLeftSteer.setProgress((int)Math.floor(-steering) + 5);
-        }
-        else
-        {
-            pbRightSteer.setProgress(5);
-            pbLeftSteer.setProgress(5);
-        }
 
-        pbThrottle.setProgress((int) ((Math.abs(throttle * 2.7f) + 5)));
+        if (steering != steeringCommand)
+        {
+            steeringCommand = steering;
 
-        if (throttle > 0f)
-        {
-            txtDirection.setText(R.string.forward);
-        }
-        else if (throttle < 0f)
-        {
-            txtDirection.setText(R.string.reverse);
-        }
-        else
-        {
-            txtDirection.setText(R.string.neutral);
+            eventBus.post(new QuantityCommandSentEvent(Consts.COMMAND_SET_STEERING, steeringCommand));
+
+            ProgressBar pbRightSteer = findViewById(R.id.rightSteering);
+            ProgressBar pbLeftSteer = findViewById(R.id.leftSteering);
+
+            if (steering >= 0f)
+            {
+                pbRightSteer.setProgress((int) Math.floor(steeringCommand) + 5);
+                pbLeftSteer.setProgress(0);
+            } else if (steering <= 0f)
+            {
+                pbRightSteer.setProgress(0);
+                pbLeftSteer.setProgress((int) Math.floor(-steeringCommand) + 5);
+            } else
+            {
+                pbRightSteer.setProgress(5);
+                pbLeftSteer.setProgress(5);
+            }
         }
     }
 
