@@ -27,6 +27,7 @@ public abstract class Consts {
 	public static final String COMMAND_SET_THROTTLE = "SET_THROTTLE";
 	public static final String COMMAND_SET_STEERING = "SET_STEERING";
 
+	public static final String PREF_STEERING_DEADZONE = "steering_dead_zone";
 
 	private Consts() {
 	}

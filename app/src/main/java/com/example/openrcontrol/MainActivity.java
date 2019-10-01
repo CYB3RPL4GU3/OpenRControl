@@ -32,7 +32,6 @@ public class MainActivity extends Activity
 {
     private Intent control;
     protected EventBus eventBus;
-    //TODO: Falta incluir la actividad de preferencias
     private SharedPreferences sharedPreferences;
     private float steeringCommand;
     private float throttleCommand;
@@ -158,6 +157,8 @@ public class MainActivity extends Activity
         InputDevice inputDevice = event.getDevice();
 
         float steering = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_X, historyPos) * 100f;
+        float deadZone = sharedPreferences.getFloat(Consts.PREF_STEERING_DEADZONE, 0f) / 100f;
+        float correctedSteering = getCorrectedAxisValue(steering, deadZone);
 
         float forward = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_RZ, historyPos);
         float backward = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_Z, historyPos);
@@ -193,20 +194,20 @@ public class MainActivity extends Activity
             }
         }
 
-        if (steering != steeringCommand)
+        if (correctedSteering != steeringCommand)
         {
-            steeringCommand = steering;
+            steeringCommand = correctedSteering;
 
             eventBus.post(new QuantityCommandSentEvent(Consts.COMMAND_SET_STEERING, steeringCommand));
 
             ProgressBar pbRightSteer = findViewById(R.id.rightSteering);
             ProgressBar pbLeftSteer = findViewById(R.id.leftSteering);
 
-            if (steering >= 0f)
+            if (steeringCommand >= 0f)
             {
                 pbRightSteer.setProgress((int) Math.floor(steeringCommand) + 5);
                 pbLeftSteer.setProgress(0);
-            } else if (steering <= 0f)
+            } else if (steeringCommand <= 0f)
             {
                 pbRightSteer.setProgress(0);
                 pbLeftSteer.setProgress((int) Math.floor(-steeringCommand) + 5);
@@ -216,6 +217,15 @@ public class MainActivity extends Activity
                 pbLeftSteer.setProgress(5);
             }
         }
+    }
+
+    private float getCorrectedAxisValue(float axisValue, float deadZone)
+    {
+        if (Math.abs(axisValue) < deadZone)
+        {
+            return 0f;
+        }
+        return (Math.abs(axisValue) - deadZone) * Math.signum(axisValue) / (1 - deadZone);
     }
 
     private void mLog(String log, boolean newLine) {
