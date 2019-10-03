@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <EditTextPreference
-        android:key="steering_dead_zone"
-        android:title="@string/pref_steering_deadzone"
         android:defaultValue="@string/pref_default_steering_deadzone"
-        android:selectAllOnFocus="true"
+        android:dialogTitle="@string/pref_steering_deadzone"
         android:inputType="number"
-        android:maxLength="3"
+        android:key="steering_dead_zone"
+        android:maxLength="2"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
         android:singleLine="true"
-        android:maxLines="1" />
+        android:title="@string/pref_steering_deadzone" />
 </PreferenceScreen>

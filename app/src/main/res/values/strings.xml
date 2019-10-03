@@ -4,10 +4,13 @@
     <string name="forward">D</string>
     <string name="neutral">N</string>
     <string name="reverse">R</string>
+    <!--Botones en la UI principal-->
+    <string name="button_settings">Preferencias</string>
     <!-- Mensajes transmisor -->
     <string name="MESSAGE_CONNECT_YOUR_USB_HID_DEVICE">Conecta el transmisor</string>
     <string name="MESSAGE_SELECT_YOUR_USB_HID_DEVICE">Selecciona el transmisor a utilizar</string>
     <!-- Configuraciones -->
-    <string name="pref_steering_deadzone">Zona muerta de la dirección (0..100)</string>
+    <string name="pref_steering_deadzone">Zona muerta de la dirección (0..99)</string>
     <string name="pref_default_steering_deadzone">10</string>
+    <string name="pref_hid_device_selection">Configurar transmisor</string>
 </resources>

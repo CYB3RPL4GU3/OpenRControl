@@ -113,7 +113,7 @@ public class OpenRControl extends AbstractUSBHIDService
         {
             case Consts.COMMAND_SET_THROTTLE:
             {
-                eventBus.post(new USBDataSendEvent(getString(R.string.throttle) + String.format(Locale.US, "%.2f", event.getQuantity()) + getString(R.string.terminator)));
+                eventBus.post(new USBDataSendEvent(getString(R.string.throttle) + String.format(Locale.US, "%d", (int)(event.getQuantity())) + getString(R.string.terminator)));
                 break;
             }
             case Consts.COMMAND_SET_STEERING:

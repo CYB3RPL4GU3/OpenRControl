@@ -10,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -19,6 +20,7 @@ import com.example.openrcontrol.core.events.DeviceAttachedEvent;
 import com.example.openrcontrol.core.events.DeviceDetachedEvent;
 import com.example.openrcontrol.core.events.HeartbeatEvent;
 import com.example.openrcontrol.core.events.LogMessageEvent;
+import com.example.openrcontrol.core.events.PrepareDevicesListEvent;
 import com.example.openrcontrol.core.events.QuantityCommandSentEvent;
 import com.example.openrcontrol.core.events.SelectDeviceEvent;
 import com.example.openrcontrol.core.events.ShowDevicesListEvent;
@@ -56,6 +58,13 @@ public class MainActivity extends Activity
         super.onStart();
         control = new Intent(this, OpenRControl.class);
         startService(control);
+        eventBus.register(this);
+    }
+
+    @Override
+    protected void onStop() {
+        eventBus.unregister(this);
+        super.onStop();
     }
 
     @Override
@@ -260,6 +269,19 @@ public class MainActivity extends Activity
         builder.show();
     }
 
+    public void onSettingsButtonClick(View v)
+    {
+        startActivity(new Intent(this, SettingsActivity.class));
+    }
+
+    public void onHidDeviceSelectionClick(View v)
+    {
+        eventBus.post(new PrepareDevicesListEvent());
+    }
+
+    public void onEvent(ShowDevicesListEvent event) {
+        showListOfDevices(event.getCharSequenceArray());
+    }
 
     public void onEvent(USBDataReceiveEvent event) {
         mLog(event.getData() + " \nReceived " + event.getBytesCount() + " bytes", true);
@@ -267,10 +289,6 @@ public class MainActivity extends Activity
 
     public void onEvent(LogMessageEvent event) {
         mLog(event.getData(), true);
-    }
-
-    public void onEvent(ShowDevicesListEvent event) {
-        showListOfDevices(event.getCharSequenceArray());
     }
 
     public void onEvent(DeviceAttachedEvent event) {
