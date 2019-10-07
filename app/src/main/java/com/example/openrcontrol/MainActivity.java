@@ -18,6 +18,7 @@ import com.example.openrcontrol.core.Consts;
 import com.example.openrcontrol.core.events.CommandSentEvent;
 import com.example.openrcontrol.core.events.DeviceAttachedEvent;
 import com.example.openrcontrol.core.events.DeviceDetachedEvent;
+import com.example.openrcontrol.core.events.HeartbeatAcknowledgeEvent;
 import com.example.openrcontrol.core.events.HeartbeatEvent;
 import com.example.openrcontrol.core.events.LogMessageEvent;
 import com.example.openrcontrol.core.events.PrepareDevicesListEvent;
@@ -104,6 +105,9 @@ public class MainActivity extends Activity
                         eventBus.post(new CommandSentEvent(Consts.COMMAND_NEXT_RAINLIGHT_COLOR));
                         handled = true;
                         break;
+                    case KeyEvent.KEYCODE_BUTTON_B:
+                        handled = true;
+                        break;
                     default:
                         handled = false;
                         break;
@@ -165,9 +169,10 @@ public class MainActivity extends Activity
         //FIXME: Hay un error que aún no se puede controlar, que sucede cuando el control se desconecta.
         InputDevice inputDevice = event.getDevice();
 
-        float steering = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_X, historyPos) * 100f;
-        float deadZone = sharedPreferences.getFloat(Consts.PREF_STEERING_DEADZONE, 0f) / 100f;
-        float correctedSteering = getCorrectedAxisValue(steering, deadZone);
+        float steering = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_X, historyPos);
+        int deadZone = Integer.parseInt(sharedPreferences.getString(Consts.PREF_STEERING_DEADZONE, "0"));
+        float deadPercentage = (float)deadZone / 100f;
+        float correctedSteering = getCorrectedAxisValue(steering, deadPercentage) * 100f;
 
         float forward = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_RZ, historyPos);
         float backward = getCenteredAxis(event, inputDevice, MotionEvent.AXIS_Z, historyPos);
@@ -284,7 +289,12 @@ public class MainActivity extends Activity
     }
 
     public void onEvent(USBDataReceiveEvent event) {
-        mLog(event.getData() + " \nReceived " + event.getBytesCount() + " bytes", true);
+        String data = event.getData();
+        mLog(data + " \nReceived " + event.getBytesCount() + " bytes", true);
+        if (data != null && data.length() != 0 && data.contains(getString(R.string.heartbeatRequest)))
+        {
+            eventBus.post(new HeartbeatAcknowledgeEvent());
+        }
     }
 
     public void onEvent(LogMessageEvent event) {

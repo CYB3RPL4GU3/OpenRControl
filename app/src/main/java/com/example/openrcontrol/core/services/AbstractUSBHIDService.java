@@ -20,6 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.openrcontrol.R;
 import com.example.openrcontrol.core.Consts;
 import com.example.openrcontrol.core.USBUtils;
 import com.example.openrcontrol.core.events.DeviceAttachedEvent;
@@ -99,20 +100,20 @@ public abstract class AbstractUSBHIDService extends Service {
 		}
 
 		@Override
-		public void run() {
+		public void run()
+		{
 			try {
 				if (connection != null && endPointRead != null) {
 					while (!isStopped) {
 						final byte[] buffer = new byte[packetSize];
 						final int status = connection.bulkTransfer(endPointRead, buffer, packetSize, 100);
-						if (status > 0) {
+						if (status > 0 && !isBufferEmpty(buffer)) {
 							uiHandler.post(new Runnable() {
 								@Override
 								public void run() {
 									onUSBDataReceive(buffer);
 								}
 							});
-
 						}
 					}
 				}
@@ -121,17 +122,30 @@ public abstract class AbstractUSBHIDService extends Service {
 			}
 		}
 
-		public void stopThis() {
+		private boolean isBufferEmpty(byte[] buffer)
+		{
+			boolean isEmpty = true;
+
+			for (int i = 0; i < buffer.length && isEmpty; i++)
+			{
+				isEmpty = (buffer[i] == 0);
+			}
+
+			return isEmpty;
+		}
+
+		public void stopThis()
+		{
 			isStopped = true;
 		}
 	}
 
-	public void onEventMainThread(USBDataSendEvent event){
-		sendData(event.getData(), sentDataType);
-	}
+//	public void onEventMainThread(USBDataSendEvent event){
+//		sendData(getString(R.string.startChar) + event.getData() + getString(R.string.terminator), sentDataType);
+//	}
 
 	public void onEvent(USBDataSendEvent event){
-		sendData(event.getData(), sentDataType);
+		sendData(getString(R.string.startChar) + getString(R.string.startChar) + event.getData() + getString(R.string.terminator), sentDataType);
 	}
 
 	public void onEvent(SelectDeviceEvent event) {

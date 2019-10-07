@@ -29,6 +29,8 @@ public abstract class Consts {
 
 	public static final String PREF_STEERING_DEADZONE = "steering_dead_zone";
 
+	public static final int MAX_RECEIVED_STRING_SIZE = 64;
+
 	private Consts() {
 	}
 }
